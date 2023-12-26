@@ -1,14 +1,27 @@
 local vim = vim
-local opt = vim.opt
 local M = {}
 
-M.setup = function()
-  local color_file = vim.fn.stdpath 'data' .. '/persistent-colorscheme'
+local defaults = {
+  --- @type string
+  default_colorscheme = 'default',
+}
+
+M.setup = function(options)
+  local opts = vim.tbl_deep_extend('keep', options or {}, defaults)
+  vim.cmd.colorscheme(opts.default_colorscheme)
+
+  local color_file = vim.fn.stdpath 'data'
+  if vim.fn.has 'win32' == 1 or vim.fn.has 'win64' == 1 then
+    color_file = color_file .. '\\persistent-colorscheme'
+  else
+    color_file = color_file .. '/persistent-colorscheme'
+  end
+
   if vim.fn.filereadable(color_file) == 1 then
-    local f = io.open(color_file, 'r')
-    io.input(f)
+    local file = io.open(color_file, 'r')
+    io.input(file)
     vim.cmd.colorscheme(io.read '*l')
-    io.close(f)
+    io.close(file)
   else
     vim.cmd.colorscheme 'tokyonight-night'
   end
