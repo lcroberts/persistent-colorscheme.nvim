@@ -36,6 +36,9 @@ M.setup = function(options)
     io.input(file)
     vim.cmd.colorscheme(io.read '*l')
     io.close(file)
+    if opts.transparent then
+      make_transparent()
+    end
   end
 
   if vim.fn.filewritable(color_file) == 0 then
