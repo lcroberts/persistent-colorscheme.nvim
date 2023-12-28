@@ -2,11 +2,11 @@ local vim = vim
 local utils = require 'persistent-colorscheme.utils'
 local M = {}
 
-local color_file = vim.fn.stdpath 'data'
+local state_file = vim.fn.stdpath 'data'
 if vim.fn.has 'win32' == 1 or vim.fn.has 'win64' == 1 then
-  color_file = color_file .. '\\persistent-colorscheme'
+  state_file = state_file .. '\\persistent-colorscheme'
 else
-  color_file = color_file .. '/persistent-colorscheme'
+  state_file = state_file .. '/persistent-colorscheme'
 end
 
 local defaults = {
@@ -24,10 +24,7 @@ M.setup = function(options)
     utils.make_transparent()
   end
 
-  utils.load_state()
-  if opts.transparent then
-    utils.make_transparent()
-  end
+  utils.load_state(opts)
 
   vim.api.nvim_create_autocmd({ 'ColorScheme' }, {
     group = vim.api.nvim_create_augroup('ColorSchemePersist', { clear = true }),
