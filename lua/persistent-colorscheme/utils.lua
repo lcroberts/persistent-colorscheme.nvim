@@ -12,6 +12,7 @@ M.parse_file = function()
   local file = io.open(state_file, 'r')
   if file == nil then
     print 'Error opening state_file'
+    return
   end
   opts.colorscheme = file:read '*l'
   if file:read '*l' == 'true' then
@@ -33,6 +34,9 @@ M.make_transparent = function()
 end
 
 M.load_state = function(opts)
+  if vim.fn.filereadable(state_file) == 0 then
+    return
+  end
   opts = M.parse_file()
   vim.cmd.colorscheme(opts.colorscheme)
   if opts.transparent then
