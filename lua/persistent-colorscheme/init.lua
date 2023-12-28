@@ -29,11 +29,12 @@ M.setup = function(options)
   vim.api.nvim_create_autocmd({ 'ColorScheme' }, {
     group = vim.api.nvim_create_augroup('ColorSchemePersist', { clear = true }),
     callback = function()
-      opts.colorscheme = vim.g.colors_name
-      utils.write_state(opts)
+      opts = utils.parse_file()
       if opts.transparent then
         utils.make_transparent()
       end
+      opts.colorscheme = vim.g.colors_name
+      utils.write_state(opts)
     end,
   })
 end

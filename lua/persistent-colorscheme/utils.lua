@@ -35,6 +35,7 @@ end
 
 M.load_state = function(opts)
   if vim.fn.filereadable(state_file) == 0 then
+    M.write_state(opts)
     return
   end
   opts = M.parse_file()
