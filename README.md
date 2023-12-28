@@ -6,10 +6,10 @@ This is a simple neovim plugin that will keep track of the last colorscheme you 
 
 Below is a list of options:
 
-| Option Name         | Description                              | Type    |
-| ------------------- | ---------------------------------------- | ------- |
-| default_colorscheme | The colorscheme used if one is not found | string  |
-| transparent         | If enabled makes neovim transparent      | boolean |
+| Option Name | Description                                                      | Type    |
+| ----------- | ---------------------------------------------------------------- | ------- |
+| colorscheme | The colorscheme used, is used as the default if one is not found | string  |
+| transparent | If enabled makes neovim transparent                              | boolean |
 
 One thing to keep in mind is that some plugins that add multiple variants of the same theme may report the same colorscheme to neovim when the current colorscheme is queried. This can result in the correct variant not being saved. Check to see if you can configure the plugin to have a default version as folke allows in their tokyonight theme.
 
@@ -28,7 +28,7 @@ One thing to keep in mind is that some plugins that add multiple variants of the
       },
     },
     opts = {
-      default_colorscheme = 'tokyonight',
+      colorscheme = 'tokyonight',
     },
   }
 ```
