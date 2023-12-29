@@ -1,11 +1,12 @@
 local vim = vim
+local M = {}
+
 local state_file = vim.fn.stdpath 'data'
 if vim.fn.has 'win32' == 1 or vim.fn.has 'win64' == 1 then
   state_file = state_file .. '\\persistent-colorscheme'
 else
   state_file = state_file .. '/persistent-colorscheme'
 end
-local M = {}
 
 M.parse_file = function()
   local opts = {}
@@ -17,35 +18,6 @@ M.parse_file = function()
   opts = vim.json.decode(file:read '*a')
   file:close()
   return opts
-end
-
-M.make_transparent = function()
-  for _, x in ipairs(vim.g.transparency_groups) do
-    vim.api.nvim_set_hl(0, x, { force = true, bg = 'NONE', ctermbg = 'NONE' })
-  end
-end
-
-M.enable_transparency = function()
-  M.make_transparent()
-  local opts = M.parse_file()
-  opts.transparent = true
-  M.write_state(opts)
-end
-
-M.disable_transparency = function()
-  local opts = M.parse_file()
-  vim.cmd.colorscheme(opts.colorscheme)
-  opts.transparent = false
-  M.write_state(opts)
-end
-
-M.toggle_transparency = function()
-  local opts = M.parse_file()
-  if opts.transparent then
-    M.disable_transparency()
-  else
-    M.enable_transparency()
-  end
 end
 
 M.load_state = function(opts)
@@ -68,6 +40,17 @@ M.write_state = function(opts)
   end
   file:write(vim.json.encode(opts))
   file:close()
+end
+
+M.make_transparent = function()
+  for _, x in ipairs(vim.g.transparent_groups) do
+    local ok, prev_attributes = pcall(vim.api.nvim_get_hl, 0, { name = x })
+    if ok and (prev_attributes.background or prev_attributes.bg or prev_attributes.ctermbg) then
+      local attributes = vim.tbl_extend('force', prev_attributes, { bg = 'NONE', ctermbg = 'NONE' })
+      attributes[true] = nil
+      vim.api.nvim_set_hl(0, x, attributes)
+    end
+  end
 end
 
 return M

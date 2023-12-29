@@ -33,7 +33,7 @@ local defaults = {
 
 M.setup = function(options)
   local opts = vim.tbl_deep_extend('keep', options or {}, defaults)
-  vim.g.transparency_groups = opts.transparent_groups
+  vim.g.transparent_groups = opts.transparent_groups
   opts.transparent_groups = nil
   vim.cmd.colorscheme(opts.colorscheme)
   if opts.transparent then
@@ -54,5 +54,40 @@ M.setup = function(options)
     end,
   })
 end
+
+M.enable_transparency = function()
+  utils.make_transparent()
+  local opts = utils.parse_file()
+  opts.transparent = true
+  utils.write_state(opts)
+end
+
+M.disable_transparency = function()
+  pcall(vim.cmd.colorscheme, vim.g.colors_name)
+  local opts = utils.parse_file()
+  opts.transparent = false
+  utils.write_state(opts)
+end
+
+M.toggle_transparency = function()
+  local opts = utils.parse_file()
+  if opts.transparent then
+    M.disable_transparency()
+    M.disable_transparency()
+  else
+    M.enable_transparency()
+  end
+end
+
+vim.api.nvim_create_user_command('TransparencyEnable', function()
+  M.enable_transparency()
+end, {})
+vim.api.nvim_create_user_command('TransparencyToggle', function()
+  M.toggle_transparency()
+end, {})
+vim.api.nvim_create_user_command('TransparencyDisable', function()
+  M.disable_transparency()
+  M.disable_transparency()
+end, {})
 
 return M
