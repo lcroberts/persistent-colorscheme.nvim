@@ -14,23 +14,38 @@ M.parse_file = function()
     print 'Error opening state_file'
     return
   end
-  opts.colorscheme = file:read '*l'
-  if file:read '*l' == 'true' then
-    opts.transparent = true
-  else
-    opts.transparent = false
-  end
+  opts = vim.json.decode(file:read '*a')
   file:close()
-
   return opts
 end
 
 M.make_transparent = function()
-  vim.cmd 'hi Normal guibg=NONE'
-  vim.cmd 'hi NormalNC guibg=NONE'
-  vim.cmd 'hi FoldColumn guibg=NONE'
-  vim.cmd 'hi SignColumn guibg=NONE'
-  vim.cmd 'hi LineNr guibg=NONE'
+  for _, x in ipairs(vim.g.transparency_groups) do
+    vim.api.nvim_set_hl(0, x, { force = true, bg = 'NONE', ctermbg = 'NONE' })
+  end
+end
+
+M.enable_transparency = function()
+  M.make_transparent()
+  local opts = M.parse_file()
+  opts.transparent = true
+  M.write_state(opts)
+end
+
+M.disable_transparency = function()
+  local opts = M.parse_file()
+  vim.cmd.colorscheme(opts.colorscheme)
+  opts.transparent = false
+  M.write_state(opts)
+end
+
+M.toggle_transparency = function()
+  local opts = M.parse_file()
+  if opts.transparent then
+    M.disable_transparency()
+  else
+    M.enable_transparency()
+  end
 end
 
 M.load_state = function(opts)
@@ -51,8 +66,7 @@ M.write_state = function(opts)
     print 'Error opening state file'
     return
   end
-  file:write(opts.colorscheme .. '\n')
-  file:write(tostring(opts.transparent) .. '\n')
+  file:write(vim.json.encode(opts))
   file:close()
 end
 

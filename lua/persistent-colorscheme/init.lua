@@ -15,10 +15,26 @@ local defaults = {
 
   --- @type boolean
   transparent = false,
+
+  transparent_groups = {
+    'Normal',
+    'NormalNC',
+    'Type',
+    'LineNr',
+    'SignColumn',
+    'CursorLine',
+    'CursorLineNr',
+    'StatusLine',
+    'StatusLineNC',
+    'EndOfBuffer',
+    'FoldColumn',
+  },
 }
 
 M.setup = function(options)
   local opts = vim.tbl_deep_extend('keep', options or {}, defaults)
+  vim.g.transparency_groups = opts.transparent_groups
+  opts.transparent_groups = nil
   vim.cmd.colorscheme(opts.colorscheme)
   if opts.transparent then
     utils.make_transparent()
