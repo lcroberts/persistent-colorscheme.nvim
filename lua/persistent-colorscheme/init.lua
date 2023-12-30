@@ -16,25 +16,77 @@ local defaults = {
   --- @type boolean
   transparent = false,
 
+  transparency_options = {
+    transparent_groups = {
+      'FoldColumn',
+      'Normal',
+      'NormalNC',
+      'Comment',
+      'Constant',
+      'Special',
+      'Identifier',
+      'Statement',
+      'PreProc',
+      'Type',
+      'Underlined',
+      'Todo',
+      'String',
+      'Function',
+      'Conditional',
+      'Repeat',
+      'Operator',
+      'Structure',
+      'LineNr',
+      'NonText',
+      'SignColumn',
+      'CursorLine',
+      'CursorLineNr',
+      'StatusLine',
+      'StatusLineNC',
+      'EndOfBuffer',
+    },
+
+    additional_groups = {},
+    exclued_groups = {},
+  },
+
   transparent_groups = {
+    'FoldColumn',
     'Normal',
     'NormalNC',
+    'Comment',
+    'Constant',
+    'Special',
+    'Identifier',
+    'Statement',
+    'PreProc',
     'Type',
+    'Underlined',
+    'Todo',
+    'String',
+    'Function',
+    'Conditional',
+    'Repeat',
+    'Operator',
+    'Structure',
     'LineNr',
+    'NonText',
     'SignColumn',
     'CursorLine',
     'CursorLineNr',
     'StatusLine',
     'StatusLineNC',
     'EndOfBuffer',
-    'FoldColumn',
   },
 }
 
 M.setup = function(options)
   local opts = vim.tbl_deep_extend('keep', options or {}, defaults)
   vim.g.transparent_groups = opts.transparent_groups
+  vim.g.transparent_groups_excluded = opts.transparency_options.transparent_groups_excluded
+  M.add_transparency_groups(opts.transparency_options.additional_groups)
   opts.transparent_groups = nil
+  opts.transparency_options = nil
   vim.cmd.colorscheme(opts.colorscheme)
   if opts.transparent then
     utils.make_transparent()
@@ -63,6 +115,7 @@ M.enable_transparency = function()
 end
 
 M.disable_transparency = function()
+  vim.g.transparent = false
   pcall(vim.cmd.colorscheme, vim.g.colors_name)
   local opts = utils.parse_file()
   opts.transparent = false
@@ -70,12 +123,25 @@ M.disable_transparency = function()
 end
 
 M.toggle_transparency = function()
-  local opts = utils.parse_file()
-  if opts.transparent then
+  if vim.g.transparent then
     M.disable_transparency()
     M.disable_transparency()
   else
     M.enable_transparency()
+  end
+end
+
+M.add_transparency_groups = function(groups)
+  vim.g.transparent_groups = vim.list_extend(groups, vim.g.transparent_groups or {})
+  if vim.g.transparent then
+    utils.make_transparent()
+  end
+end
+
+M.add_excluded_groups = function(groups)
+  vim.g.transparent_groups_excluded = vim.list_extend(groups, vim.g.transparent_groups_excluded or {})
+  if vim.g.transparent then
+    utils.make_transparent()
   end
 end
 

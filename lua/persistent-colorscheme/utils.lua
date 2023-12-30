@@ -43,12 +43,15 @@ M.write_state = function(opts)
 end
 
 M.make_transparent = function()
+  vim.g.transparent = true
   for _, x in ipairs(vim.g.transparent_groups) do
-    local ok, prev_attributes = pcall(vim.api.nvim_get_hl, 0, { name = x })
-    if ok and (prev_attributes.background or prev_attributes.bg or prev_attributes.ctermbg) then
-      local attributes = vim.tbl_extend('force', prev_attributes, { bg = 'NONE', ctermbg = 'NONE' })
-      attributes[true] = nil
-      vim.api.nvim_set_hl(0, x, attributes)
+    if not vim.tbl_contains(vim.g.transparent_groups_excluded or {}, x) then
+      local ok, prev_attributes = pcall(vim.api.nvim_get_hl, 0, { name = x })
+      if ok and (prev_attributes.background or prev_attributes.bg or prev_attributes.ctermbg) then
+        local attributes = vim.tbl_extend('force', prev_attributes, { bg = 'NONE', ctermbg = 'NONE' })
+        attributes[true] = nil
+        vim.api.nvim_set_hl(0, x, attributes)
+      end
     end
   end
 end

@@ -1,8 +1,8 @@
 # persistent-colorscheme.nvim
 
-> Note: This plugin is still a work in progress and may have bugs, though it should be functional.
+> Note: This plugin is still a work in progress. Colorscheme persistence is working, however transparency is still a WIP.
 
-This is a simple neovim plugin that will keep track of the last colorscheme you activated and load it on subsequent launches of neovim.
+This is a simple neovim plugin that will keep track of the last colorscheme you activated and load it on subsequent launches of neovim, as well as allow you to enable transparency for neovim.
 
 Below is a list of options:
 
