@@ -64,18 +64,20 @@ M.toggle_transparency = function()
 end
 
 M.add_transparency_groups = function(groups)
-  vim.g.transparent_groups = vim.list_extend(groups, vim.g.transparent_groups or {})
-  M.disable_transparency()
+  vim.list_extend(groups, vim.g.transparent_groups or {})
   if vim.g.transparent then
-    M.enable_transparency()
+    utils.make_transparent()
+  else
+    vim.cmd.colorscheme(vim.g.colors_name)
   end
 end
 
 M.add_excluded_groups = function(groups)
-  vim.g.transparent_groups_excluded = vim.list_extend(groups, vim.g.transparent_groups_excluded or {})
-  M.disable_transparency()
+  vim.list_extend(groups, vim.g.transparent_groups_excluded or {})
   if vim.g.transparent then
-    M.enable_transparency()
+    utils.make_transparent()
+  else
+    vim.cmd.colorscheme(vim.g.colors_name)
   end
 end
 
