@@ -26,17 +26,14 @@ M.load_state = function(opts)
     return
   end
   opts = M.parse_file()
-  vim.g.transparent = opts.transparent
+  vim.g.transparent_enabled = opts.transparent
   pcall(vim.cmd.colorscheme, opts.colorscheme)
-  if vim.g.transparent then
-    M.make_transparent()
-  end
 end
 
 M.write_state = function()
   local opts = {}
   opts.colorscheme = vim.g.colors_name
-  opts.transparent = vim.g.transparent
+  opts.transparent = vim.g.transparent_enabled
   local file = io.open(state_file, 'w')
   if file == nil then
     print 'Error opening state file'
@@ -44,20 +41,6 @@ M.write_state = function()
   end
   file:write(vim.json.encode(opts))
   file:close()
-end
-
-M.make_transparent = function()
-  vim.g.transparent = true
-  for _, x in ipairs(vim.g.transparent_groups) do
-    if not vim.tbl_contains(vim.g.transparent_groups_excluded or {}, x) then
-      local ok, prev_attributes = pcall(vim.api.nvim_get_hl, 0, { name = x })
-      if ok and (prev_attributes.background or prev_attributes.bg or prev_attributes.ctermbg) then
-        local attributes = vim.tbl_extend('force', prev_attributes, { bg = 'NONE', ctermbg = 'NONE' })
-        attributes[true] = nil
-        vim.api.nvim_set_hl(0, x, attributes)
-      end
-    end
-  end
 end
 
 return M

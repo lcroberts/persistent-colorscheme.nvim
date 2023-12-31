@@ -1,4 +1,6 @@
-return {
+local M = {}
+
+local config = {
   --- @type string
   colorscheme = 'default',
 
@@ -6,7 +8,7 @@ return {
   transparent = false,
 
   transparency_options = {
-    transparent_groups = {
+    groups = {
       'FoldColumn',
       'Normal',
       'NormalNC',
@@ -36,6 +38,18 @@ return {
     },
 
     additional_groups = {},
-    exclued_groups = {},
+    excluded_groups = {},
   },
 }
+
+M.setup = function(opts)
+  opts = opts or {}
+
+  vim.tbl_deep_extend('keep', opts, config)
+end
+
+return setmetatable(M, {
+  __index = function(_, k)
+    return config[k]
+  end,
+})

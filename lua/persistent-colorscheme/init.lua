@@ -1,94 +1,101 @@
 local vim = vim
 local utils = require 'persistent-colorscheme.utils'
+local config = require 'persistent-colorscheme.config'
 local M = {}
 
-local state_file = vim.fn.stdpath 'data'
-if vim.fn.has 'win32' == 1 or vim.fn.has 'win64' == 1 then
-  state_file = state_file .. '\\persistent-colorscheme'
-else
-  state_file = state_file .. '/persistent-colorscheme'
-end
+local state = {}
+utils.load_state(state)
 
-local defaults = require 'persistent-colorscheme.config'
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = vim.api.nvim_create_augroup('UpdateColorschemeCache', { clear = true }),
+  callback = function()
+    utils.write_state()
+  end,
+})
 
-M.setup = function(options)
-  local opts = vim.tbl_deep_extend('keep', options or {}, defaults)
-  vim.g.transparent_groups = opts.transparency_options.transparent_groups
-  vim.g.transparent_groups_excluded = opts.transparency_options.transparent_groups_excluded
-  vim.g.transparent = opts.transparent
-  M.add_transparency_groups(opts.transparency_options.additional_groups)
-  opts.transparency_options = nil
-  vim.cmd.colorscheme(opts.colorscheme)
-  if vim.g.transparent then
-    utils.make_transparent()
-  end
+-- used for getcompletion to get highlight groups
+local group_prefix_list = {}
 
-  utils.load_state(opts)
-
-  vim.api.nvim_create_autocmd({ 'ColorScheme' }, {
-    group = vim.api.nvim_create_augroup('ColorSchemePersist', { clear = true }),
-    callback = function()
-      opts = utils.parse_file()
-      if vim.g.transparent then
-        utils.make_transparent()
+---@param group string|string[]
+local function clear_group(group)
+  local groups = type(group) == 'string' and { group } or group
+  for _, v in ipairs(group) do
+    if not vim.tbl_contains(config.transparency_options.excluded_groups, v) then
+      local ok, prev_attrs = pcall(vim.api.nvim_get_hl_by_name, v, true)
+      if ok and (prev_attrs.background or prev_attrs.bg or prev_attrs.ctermbg) then
+        local attrs = vim.tbl_extend('force', prev_attrs, { bg = 'NONE', ctermbg = 'NONE' })
+        attrs[true] = nil
+        vim.api.nvim_set_hl(0, v, attrs)
       end
-      opts.colorscheme = vim.g.colors_name
-      utils.write_state()
-    end,
-  })
+    end
+  end
 end
 
-M.enable_transparency = function()
-  if vim.g.transparent then
+local function clear()
+  if vim.g.transparent_enabled ~= true then
     return
   end
-  utils.make_transparent()
-  utils.write_state()
+
+  clear_group(config.transparency_options.groups)
+  clear_group(config.transparency_options.additional_groups)
+  clear_group(type(vim.g.transparent_groups) == 'table' and vim.g.transparent_groups or {})
+  for _, prefix in ipairs(group_prefix_list) do
+    clear_group(vim.fn.getcompletion(prefix, 'highlight'))
+  end
 end
 
-M.disable_transparency = function()
-  if not vim.g.transparent then
+function M.clear()
+  if vim.g.transparent_enabled ~= true then
     return
   end
-  vim.g.transparent = false
+  clear()
+  vim.defer_fn(clear, 500)
+  --- again
+  vim.defer_fn(clear, 1e3)
+  --- yes, clear 4 times!!!
+  vim.defer_fn(clear, 3e3)
+  --- Don't worry about performance, it's very cheap!
+  vim.defer_fn(clear, 5e3)
+end
+
+function M.toggle(opt)
+  if opt == nil then
+    vim.g.transparent_enabled = not vim.g.transparent_enabled
+  else
+    vim.g.transparent_enabled = opt
+  end
   utils.write_state()
-  vim.cmd.colorscheme(vim.g.colors_name)
-end
-
-M.toggle_transparency = function()
-  if vim.g.transparent then
-    M.disable_transparency()
+  if vim.g.colors_name then
+    pcall(vim.cmd.colorscheme, vim.g.colors_name)
   else
-    M.enable_transparency()
+    clear()
   end
 end
 
-M.add_transparency_groups = function(groups)
-  vim.list_extend(groups, vim.g.transparent_groups or {})
-  if vim.g.transparent then
-    utils.make_transparent()
+function M.clear_prefix(prefix)
+  if not prefix or prefix == '' then
+    return
+  end
+  if not vim.tbl_contains(group_prefix_list, prefix) then
+    table.insert(group_prefix_list, prefix)
+  end
+  clear_group(vim.fn.getcompletion(prefix, 'highlight'))
+end
+
+function M.handle_groups_changed(arg)
+  local old = arg.old or {}
+  local new = arg.new or {}
+  if type(old) == 'table' and type(new) == 'table' and vim.tbl_islist(old) and vim.tbl_islist(new) then
+    clear_group(vim.tbl_filter(function(v)
+      -- print(v)
+      return not vim.tbl_contains(old, v)
+    end, new))
   else
-    vim.cmd.colorscheme(vim.g.colors_name)
+    vim.notify 'g:transparent_groups must be a list'
   end
 end
 
-M.add_excluded_groups = function(groups)
-  vim.list_extend(groups, vim.g.transparent_groups_excluded or {})
-  if vim.g.transparent then
-    utils.make_transparent()
-  else
-    vim.cmd.colorscheme(vim.g.colors_name)
-  end
-end
-
-vim.api.nvim_create_user_command('TransparencyEnable', function()
-  M.enable_transparency()
-end, {})
-vim.api.nvim_create_user_command('TransparencyToggle', function()
-  M.toggle_transparency()
-end, {})
-vim.api.nvim_create_user_command('TransparencyDisable', function()
-  M.disable_transparency()
-end, {})
+M.setup = config.setup
+M.clear_group = clear_group
 
 return M
