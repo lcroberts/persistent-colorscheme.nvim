@@ -13,11 +13,10 @@ local defaults = require 'persistent-colorscheme.config'
 
 M.setup = function(options)
   local opts = vim.tbl_deep_extend('keep', options or {}, defaults)
-  vim.g.transparent_groups = opts.transparent_groups
+  vim.g.transparent_groups = opts.transparency_options.transparent_groups
   vim.g.transparent_groups_excluded = opts.transparency_options.transparent_groups_excluded
   vim.g.transparent = opts.transparent
   M.add_transparency_groups(opts.transparency_options.additional_groups)
-  opts.transparent_groups = nil
   opts.transparency_options = nil
   vim.cmd.colorscheme(opts.colorscheme)
   if vim.g.transparent then
