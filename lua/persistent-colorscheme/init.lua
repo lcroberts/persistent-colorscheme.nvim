@@ -9,86 +9,18 @@ else
   state_file = state_file .. '/persistent-colorscheme'
 end
 
-local defaults = {
-  --- @type string
-  colorscheme = 'default',
-
-  --- @type boolean
-  transparent = false,
-
-  transparency_options = {
-    transparent_groups = {
-      'FoldColumn',
-      'Normal',
-      'NormalNC',
-      'Comment',
-      'Constant',
-      'Special',
-      'Identifier',
-      'Statement',
-      'PreProc',
-      'Type',
-      'Underlined',
-      'Todo',
-      'String',
-      'Function',
-      'Conditional',
-      'Repeat',
-      'Operator',
-      'Structure',
-      'LineNr',
-      'NonText',
-      'SignColumn',
-      'CursorLine',
-      'CursorLineNr',
-      'StatusLine',
-      'StatusLineNC',
-      'EndOfBuffer',
-    },
-
-    additional_groups = {},
-    exclued_groups = {},
-  },
-
-  transparent_groups = {
-    'FoldColumn',
-    'Normal',
-    'NormalNC',
-    'Comment',
-    'Constant',
-    'Special',
-    'Identifier',
-    'Statement',
-    'PreProc',
-    'Type',
-    'Underlined',
-    'Todo',
-    'String',
-    'Function',
-    'Conditional',
-    'Repeat',
-    'Operator',
-    'Structure',
-    'LineNr',
-    'NonText',
-    'SignColumn',
-    'CursorLine',
-    'CursorLineNr',
-    'StatusLine',
-    'StatusLineNC',
-    'EndOfBuffer',
-  },
-}
+local defaults = require 'persistent-colorscheme.config'
 
 M.setup = function(options)
   local opts = vim.tbl_deep_extend('keep', options or {}, defaults)
   vim.g.transparent_groups = opts.transparent_groups
   vim.g.transparent_groups_excluded = opts.transparency_options.transparent_groups_excluded
+  vim.g.transparent = opts.transparent
   M.add_transparency_groups(opts.transparency_options.additional_groups)
   opts.transparent_groups = nil
   opts.transparency_options = nil
   vim.cmd.colorscheme(opts.colorscheme)
-  if opts.transparent then
+  if vim.g.transparent then
     utils.make_transparent()
   end
 
@@ -98,28 +30,30 @@ M.setup = function(options)
     group = vim.api.nvim_create_augroup('ColorSchemePersist', { clear = true }),
     callback = function()
       opts = utils.parse_file()
-      if opts.transparent then
+      if vim.g.transparent then
         utils.make_transparent()
       end
       opts.colorscheme = vim.g.colors_name
-      utils.write_state(opts)
+      utils.write_state()
     end,
   })
 end
 
 M.enable_transparency = function()
+  if vim.g.transparent then
+    return
+  end
   utils.make_transparent()
-  local opts = utils.parse_file()
-  opts.transparent = true
-  utils.write_state(opts)
+  utils.write_state()
 end
 
 M.disable_transparency = function()
+  if not vim.g.transparent then
+    return
+  end
   vim.g.transparent = false
-  pcall(vim.cmd.colorscheme, vim.g.colors_name)
-  local opts = utils.parse_file()
-  opts.transparent = false
-  utils.write_state(opts)
+  utils.write_state()
+  vim.cmd.colorscheme(vim.g.colors_name)
 end
 
 M.toggle_transparency = function()

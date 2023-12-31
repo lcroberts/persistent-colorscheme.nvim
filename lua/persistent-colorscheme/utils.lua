@@ -22,17 +22,21 @@ end
 
 M.load_state = function(opts)
   if vim.fn.filereadable(state_file) == 0 then
-    M.write_state(opts)
+    M.write_state()
     return
   end
   opts = M.parse_file()
-  vim.cmd.colorscheme(opts.colorscheme)
-  if opts.transparent then
+  vim.g.transparent = opts.transparent
+  pcall(vim.cmd.colorscheme, opts.colorscheme)
+  if vim.g.transparent then
     M.make_transparent()
   end
 end
 
-M.write_state = function(opts)
+M.write_state = function()
+  local opts = {}
+  opts.colorscheme = vim.g.colors_name
+  opts.transparent = vim.g.transparent
   local file = io.open(state_file, 'w')
   if file == nil then
     print 'Error opening state file'
