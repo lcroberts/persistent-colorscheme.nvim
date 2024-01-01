@@ -9,11 +9,3 @@ function! OnTransparentGroupsChanged(d, k, z)
 endfunction
 
 call dictwatcheradd(g:, 'transparent_groups', 'OnTransparentGroupsChanged')
-
-augroup transparent
-    autocmd!
-    autocmd VimEnter,ColorScheme,FileType * lua require('persistent-colorscheme').make_transparent()
-    command -bar -nargs=0 TransparentEnable  lua require('persistent-colorscheme').toggle(true)
-    command -bar -nargs=0 TransparentDisable lua require('persistent-colorscheme').toggle(false)
-    command -bar -nargs=0 TransparentToggle  lua require('persistent-colorscheme').toggle()
-augroup END

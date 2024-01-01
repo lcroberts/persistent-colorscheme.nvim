@@ -96,4 +96,21 @@ end
 M.setup = config.setup
 M.make_group_transparent = make_group_transparent
 
+local transparency_augroup = vim.api.nvim_create_augroup('Transparency', { clear = true })
+vim.api.nvim_create_autocmd({ 'ColorScheme', 'VimEnter', 'FileType' }, {
+  callback = function()
+    M.make_transparent()
+  end,
+})
+
+vim.api.nvim_create_user_command('TransparencyEnable', function()
+  M.toggle(true)
+end, {})
+vim.api.nvim_create_user_command('TransparencyDisable', function()
+  M.toggle(false)
+end, {})
+vim.api.nvim_create_user_command('TransparencyToggle', function()
+  M.toggle()
+end, {})
+
 return M
