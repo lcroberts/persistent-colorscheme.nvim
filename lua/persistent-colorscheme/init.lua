@@ -113,4 +113,15 @@ vim.api.nvim_create_user_command('TransparencyToggle', function()
   M.toggle()
 end, {})
 
+vim.api.nvim_exec2(
+  [[
+function! OnTransparentGroupsChanged(d, k, z)
+  call luaeval('require("persistent-colorscheme").handle_groups_changed(_A)', a:z)
+endfunction
+
+call dictwatcheradd(g:, 'transparent_groups', 'OnTransparentGroupsChanged')
+]],
+  {}
+)
+
 return M

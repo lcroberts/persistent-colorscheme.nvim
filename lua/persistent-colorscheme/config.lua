@@ -1,14 +1,12 @@
 local M = {}
 
 local config = {
-  --- @type string
-  colorscheme = 'default',
+  colorscheme = 'default', --- @type string - Default colorscheme if no cached data is found
 
-  --- @type boolean
-  transparent = false,
+  transparent = false,     --- @type boolean - Default transparency status if no cached data is found
 
   transparency_options = {
-    groups = {
+    groups = { ---@type string[]
       'FoldColumn',
       'Folded',
       'Normal',
@@ -38,9 +36,9 @@ local config = {
       'EndOfBuffer',
     },
 
-    additional_groups = {},
-    excluded_groups = {},
-    transparent_prefixes = {},
+    additional_groups = {}, ---@type string[] - Additional highlight groups to be made transparent
+    excluded_groups = {}, ---@type string[] - Groups exclude when enabling transparency
+    transparent_prefixes = {}, ---@type string[] -- Highlight group prefixes to make transparent. All highlight groups starting with a prefix will be made transparent.
   },
 }
 
