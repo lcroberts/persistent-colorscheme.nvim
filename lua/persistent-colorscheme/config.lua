@@ -40,13 +40,14 @@ local config = {
 
     additional_groups = {},
     excluded_groups = {},
+    transparent_prefixes = {},
   },
 }
 
 M.setup = function(opts)
   opts = opts or {}
 
-  vim.tbl_deep_extend('keep', opts, config)
+  config = vim.tbl_deep_extend('keep', opts, config)
 end
 
 return setmetatable(M, {
