@@ -44,10 +44,19 @@ local config = {
   },
 }
 
+local function make_prefixes_transparent()
+  local pcs = require 'persistent-colorscheme'
+
+  for _, prefix in ipairs(config.transparency_options.transparent_prefixes) do
+    pcs.make_group_transparent(vim.fn.getcompletion(prefix, 'highlight'))
+  end
+end
+
 M.setup = function(opts)
   opts = opts or {}
 
   config = vim.tbl_deep_extend('keep', opts, config)
+  make_prefixes_transparent()
 end
 
 return setmetatable(M, {

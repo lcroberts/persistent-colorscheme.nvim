@@ -1,6 +1,7 @@
 local vim = vim
 local utils = require 'persistent-colorscheme.utils'
 local config = require 'persistent-colorscheme.config'
+local group_prefix_list = config.transparency_options.transparent_prefixes
 local M = {}
 
 local state = {}
@@ -13,15 +14,12 @@ vim.api.nvim_create_autocmd('ColorScheme', {
   end,
 })
 
--- used for getcompletion to get highlight groups
-local group_prefix_list = {}
-
 ---@param group string|string[]
-local function clear_group(group)
+local function make_group_transparent(group)
   local groups = type(group) == 'string' and { group } or group
   for _, v in ipairs(group) do
     if not vim.tbl_contains(config.transparency_options.excluded_groups, v) then
-      local ok, prev_attrs = pcall(vim.api.nvim_get_hl_by_name, v, true)
+      local ok, prev_attrs = pcall(vim.api.nvim_get_hl, 0, { name = v })
       if ok and (prev_attrs.background or prev_attrs.bg or prev_attrs.ctermbg) then
         local attrs = vim.tbl_extend('force', prev_attrs, { bg = 'NONE', ctermbg = 'NONE' })
         attrs[true] = nil
@@ -31,31 +29,26 @@ local function clear_group(group)
   end
 end
 
-local function clear()
+local function make_transparent()
   if vim.g.transparent_enabled ~= true then
     return
   end
 
-  clear_group(config.transparency_options.groups)
-  clear_group(config.transparency_options.additional_groups)
-  clear_group(type(vim.g.transparent_groups) == 'table' and vim.g.transparent_groups or {})
+  make_group_transparent(config.transparency_options.groups)
+  make_group_transparent(config.transparency_options.additional_groups)
+  make_group_transparent(type(vim.g.transparent_groups) == 'table' and vim.g.transparent_groups or {})
   for _, prefix in ipairs(group_prefix_list) do
-    clear_group(vim.fn.getcompletion(prefix, 'highlight'))
+    make_group_transparent(vim.fn.getcompletion(prefix, 'highlight'))
   end
 end
 
-function M.clear()
+function M.make_transparent()
   if vim.g.transparent_enabled ~= true then
     return
   end
-  clear()
-  vim.defer_fn(clear, 500)
-  --- again
-  vim.defer_fn(clear, 1e3)
-  --- yes, clear 4 times!!!
-  vim.defer_fn(clear, 3e3)
-  --- Don't worry about performance, it's very cheap!
-  vim.defer_fn(clear, 5e3)
+  make_transparent()
+  vim.defer_fn(make_transparent, 500)
+  vim.defer_fn(make_transparent, 1e3)
 end
 
 function M.toggle(opt)
@@ -68,26 +61,25 @@ function M.toggle(opt)
   if vim.g.colors_name then
     pcall(vim.cmd.colorscheme, vim.g.colors_name)
   else
-    clear()
+    make_transparent()
   end
 end
 
-function M.clear_prefix(prefix)
+function M.make_prefix_transparent(prefix)
   if not prefix or prefix == '' then
     return
   end
   if not vim.tbl_contains(group_prefix_list, prefix) then
     table.insert(group_prefix_list, prefix)
   end
-  clear_group(vim.fn.getcompletion(prefix, 'highlight'))
+  make_group_transparent(vim.fn.getcompletion(prefix, 'highlight'))
 end
 
 function M.handle_groups_changed(arg)
   local old = arg.old or {}
   local new = arg.new or {}
   if type(old) == 'table' and type(new) == 'table' and vim.tbl_islist(old) and vim.tbl_islist(new) then
-    clear_group(vim.tbl_filter(function(v)
-      -- print(v)
+    make_group_transparent(vim.tbl_filter(function(v)
       return not vim.tbl_contains(old, v)
     end, new))
   else
@@ -96,6 +88,6 @@ function M.handle_groups_changed(arg)
 end
 
 M.setup = config.setup
-M.clear_group = clear_group
+M.make_group_transparent = make_group_transparent
 
 return M
