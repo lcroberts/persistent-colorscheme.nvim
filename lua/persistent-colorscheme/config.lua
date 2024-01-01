@@ -10,6 +10,7 @@ local config = {
   transparency_options = {
     groups = {
       'FoldColumn',
+      'Folded',
       'Normal',
       'NormalNC',
       'Comment',
