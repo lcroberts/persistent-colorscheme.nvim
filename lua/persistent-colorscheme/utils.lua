@@ -8,6 +8,10 @@ else
   state_file = state_file .. '/persistent-colorscheme'
 end
 
+-- Reads the cached file and returns a table containing 2 keys.
+-- transparent - a boolean for whether or not transparency is enabled
+-- colorscheme - the name of the last used colorscheme
+---@return opts table A table containing the persisted opts.
 M.parse_file = function()
   local opts = {}
   local file = io.open(state_file, 'r')
@@ -20,7 +24,8 @@ M.parse_file = function()
   return opts
 end
 
-M.load_state = function(opts)
+-- Reads the previous colorscheme and transparency status and returns neovim to that state.
+M.load_state = function()
   if vim.fn.filereadable(state_file) == 0 then
     M.write_state()
     return
@@ -30,6 +35,7 @@ M.load_state = function(opts)
   pcall(vim.cmd.colorscheme, opts.colorscheme)
 end
 
+-- Persists the current colorscheme and transparency status
 M.write_state = function()
   local opts = {}
   opts.colorscheme = vim.g.colors_name

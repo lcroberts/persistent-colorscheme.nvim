@@ -52,6 +52,7 @@ local function make_prefixes_transparent()
   end
 end
 
+---@param opts table
 M.setup = function(opts)
   opts = opts or {}
 
