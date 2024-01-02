@@ -1,5 +1,7 @@
 # persistent-colorscheme.nvim
 
+> Note this plugin is still a WIP and breaking changes may still be made
+
 This is a simple neovim plugin that will keep track of the last colorscheme you activated and load it on subsequent launches of neovim, as well as allow you to enable transparency for neovim.
 
 ## Installation
@@ -75,3 +77,32 @@ Below is the default options:
   },
 }
 ```
+
+## Plugins
+
+Many plugins have their own highlight groups. Simply adding them to the `additional_groups` or `transparent_prefixes` options may not behave correctly so you will want to handle those transparency groups after the plugin has loaded. There are several ways to do this.
+
+### Extend g:transparent_groups
+
+The first way to handle plugin transparency groups is to add them to the global variable `transparent_groups`. Here is an example that handles the bufferline transparency groups.
+
+```lua
+vim.g.transparent_groups = vim.list_extend(
+  vim.g.transparent_groups or {},
+  vim.tbl_map(function(v)
+    return v.hl_group
+  end, vim.tbl_values(require('bufferline.config').highlights))
+)
+```
+
+### Use `make_prefix_trsnaprent`
+
+Another way to handle plugin highlight groups is the use the `make_prefix_transparent` function. This is useful when the highlight groups share a common prefix. Below is an example I use for the gitsigns plugin to death with the signs in the sign column.
+
+```lua
+require('persistent-colorscheme').make_prefix_transparent 'GitGutter'
+```
+
+## Credits
+
+Thanks to xiyaowong and their work on [transparent.nvim](https://github.com/xiyaowong/transparent.nvim). It was very useful as a reference on how to handle highlight groups and prevent any weirdness. If all you care about is the transparency, then this is a better option.
