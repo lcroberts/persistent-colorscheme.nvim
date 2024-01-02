@@ -84,7 +84,7 @@ Many plugins have their own highlight groups. Simply adding them to the `additio
 
 ### Extend g:transparent_groups
 
-The first way to handle plugin transparency groups is to add them to the global variable `transparent_groups`. Here is an example that handles the bufferline transparency groups.
+The first way to handle plugin transparency groups is to add them to the global variable `transparent_groups`. There is a watcher for the variable that will detect newly added highlight groups and make them transparent. Here is an example that handles the bufferline transparency groups.
 
 ```lua
 vim.g.transparent_groups = vim.list_extend(
