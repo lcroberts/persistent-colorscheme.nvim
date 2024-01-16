@@ -1,7 +1,5 @@
 # persistent-colorscheme.nvim
 
-> Note this plugin is still a WIP and breaking changes may still be made
-
 This is a simple neovim plugin that will keep track of the last colorscheme you activated and load it on subsequent launches of neovim, as well as allow you to enable transparency for neovim.
 
 ## Installation
@@ -102,6 +100,14 @@ Another way to handle plugin highlight groups is the use the `make_prefix_transp
 ```lua
 require('persistent-colorscheme').make_prefix_transparent 'GitGutter'
 ```
+
+## Why does this plugin exist?
+
+This plugin is useful if you use the same neovim config across multiple devices and want to use different colorchemes or have different appearance options on each device. It is also useful if you are someone who just enjoys changing colorschemes often as well.
+
+## TODO
+
+- Add a config option to have groups that will always be transparent regardless of transparency status
 
 ## Credits
 
