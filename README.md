@@ -41,7 +41,6 @@ Below is the default options:
   transparency_options = {
     groups = { ---@type string[]
       'FoldColumn',
-      'Folded',
       'Normal',
       'NormalNC',
       'Comment',
@@ -72,6 +71,7 @@ Below is the default options:
     additional_groups = {}, ---@type string[] - Additional highlight groups to be made transparent
     excluded_groups = {}, ---@type string[] - Groups exclude when enabling transparency
     transparent_prefixes = {}, ---@type string[] -- Highlight group prefixes to make transparent. All highlight groups starting with a prefix will be made transparent.
+    always_transparent = {}, ---@type string[] -- Highlight groups that will always be transparent regardless of transparency status
   },
 }
 ```
@@ -107,7 +107,7 @@ This plugin is useful if you use the same neovim config across multiple devices 
 
 ## TODO
 
-- Add a config option to have groups that will always be transparent regardless of transparency status
+- [x] Add a config option to have groups that will always be transparent regardless of transparency status
 
 ## Credits
 

@@ -31,6 +31,7 @@ end
 
 -- Enables trasparency for all transparency sources
 local function make_transparent()
+  make_group_transparent(config.transparency_options.always_transparent)
   if vim.g.transparent_enabled ~= true then
     return
   end
@@ -45,6 +46,7 @@ end
 
 -- Enables trasparency for all transparency sources
 function M.make_transparent()
+  make_group_transparent(config.transparency_options.always_transparent)
   if vim.g.transparent_enabled ~= true then
     return
   end

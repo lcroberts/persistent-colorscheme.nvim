@@ -8,7 +8,6 @@ local config = {
   transparency_options = {
     groups = { ---@type string[]
       'FoldColumn',
-      'Folded',
       'Normal',
       'NormalNC',
       'Comment',
@@ -39,6 +38,7 @@ local config = {
     additional_groups = {}, ---@type string[] - Additional highlight groups to be made transparent
     excluded_groups = {}, ---@type string[] - Groups exclude when enabling transparency
     transparent_prefixes = {}, ---@type string[] -- Highlight group prefixes to make transparent. All highlight groups starting with a prefix will be made transparent.
+    always_transparent = {}, ---@type string[] -- Hihglight groups that will always be transparent regardless of transparency status
   },
 }
 
