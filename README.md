@@ -4,15 +4,13 @@ This is a simple neovim plugin that will keep track of the last colorscheme you 
 
 ## Installation
 
-The plugin can be installed using the url `lcroberts/persistent-colorscheme.nvim` with your package manager of choice. As I use lazy, my provided example uses lazy. I recommend loading your colorscheme plugins before running the setup. In lazy this can be done by adding those plugins as a dependency for persistent-colorscheme. You should also load the plugin very early on in your config.
-
 One thing to keep in mind is that some plugins that add multiple variants of the same theme may report the same colorscheme to neovim when the current colorscheme is queried. This can result in the correct variant not being saved. Check to see if you can configure the plugin to have a default version as folke allows in their tokyonight theme. Below is a snippet from my neovim config that demonstrates this.
 
 ```lua
   {
     'lcroberts/persistent-colorscheme.nvim',
     lazy = false,
-    priority = 1000,
+    priority = 1000, -- Plugin should be loaded early
     dependencies = {
       'RRethy/nvim-base16', -- Lots of baked-in themes and support to add more
       {
@@ -93,7 +91,7 @@ vim.g.transparent_groups = vim.list_extend(
 )
 ```
 
-### Use `make_prefix_trsnaprent`
+### Use `make_prefix_transparent`
 
 Another way to handle plugin highlight groups is the use the `make_prefix_transparent` function. This is useful when the highlight groups share a common prefix. Below is an example I use for the gitsigns plugin to death with the signs in the sign column.
 
@@ -104,10 +102,6 @@ require('persistent-colorscheme').make_prefix_transparent 'GitGutter'
 ## Why does this plugin exist?
 
 This plugin is useful if you use the same neovim config across multiple devices and want to use different colorchemes or have different appearance options on each device. It is also useful if you are someone who just enjoys changing colorschemes often as well.
-
-## TODO
-
-- [x] Add a config option to have groups that will always be transparent regardless of transparency status
 
 ## Credits
 
